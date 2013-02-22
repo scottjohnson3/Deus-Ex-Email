@@ -1,0 +1,214 @@
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<link href='http://fonts.googleapis.com/css?family=Roboto+Condensed:400,700' rel='stylesheet' type='text/css'>
+	
+	<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+	<script src="http://code.jquery.com/jquery-migrate-1.1.1.min.js"></script>
+	
+	<script>
+		var SELECTED_EMAIL_ID  = "inbox-item-0";
+		var SELECTED_EMAIL_NUM = 0;
+		
+		// Constants
+		var backgroundColorUnselected = "radial-gradient(at top, #2d3029, #0f1110)";
+		var backgroundColorSelected = "radial-gradient(at top, #e9b33f, #d28a14)";
+		
+		// Email data
+		var emailJSON = {'emails':[
+			{
+				'from':'freneticpony@SI.corp.det',
+				'to':'lawboy@SI.corp.det',
+				'subject':'Mercury Insta-Messaging Autosave',
+				'body':'This conversation was automatically saved in your Conversation History:<br><br>> FRENETICPONY: wE can\'t let SWAT into that plant. Theye\'s too much at stake.<br>> FRENETICPONY: I\'m calling Jensen in<br>> LAWBOY: he\'s still on medical leave, D.<br>> FRENETICPONY: marcovic gave him a claer bill of healthlast week<br>> LAWBOY: and how much pressure was she under, huh?<br>> FRENETICPONY: I rsent that accusation<br>> LAWBOY: Resent it all you like, but you hired ME to protect your ass.<br>> LAWBOY: you got away with teh surgeries because<br>> LAWBOY: of taht neat little clause we had in his contract<br>> LAWBOY: but if soemthing happens to him now<br>> FRENETICPONY: It won\'t. Trust me <br>> LAWBOY: It\'s your call. Boss.<br>> FRENETICPONY: wE saved hisn life for gods\' sake.<br>> FRENETICPONY: i Don\'t thinkhe\'ll be suing us any tiem soon.',
+				'unread':true,
+			},
+			{
+				'from':'Athene Margoulis',
+				'to':'Denzel Mitchel',
+				'subject':'A little help',
+				'body':'Hey, Denny. When you\'ve got a second, can you stop by? David\'s asked me to draft a formal letter to TYM declining their oh-so generous offer. I want to make sure I get the wording correct. <br><br> -A<br><br>Athene Margoulis<br>Executive Assistant<br>Sarif Industries',
+				'unread':true,
+			},
+			{
+				'from':'Frank Pritchard',
+				'to':'SI GLOBAL',
+				'subject':'Heightened Security Measures',
+				'body':'******* IMPORTANT *******<br><br>As you are all FULLY aware,  network security is of the utmost importance in securing the safety and well-being of this company.',
+				'unread':true,
+			},
+		]};
+		
+		var numTotalEmails = emailJSON.emails.length;
+		
+		function countUnreadEmails()
+		{
+			var count = 0;
+			for(var n in emailJSON.emails)
+			{
+				if(emailJSON.emails[n].unread == true)
+					count++;
+			}
+			return count;
+		};
+		
+		function populateScreen()
+		{
+			setUnreadNumUnreadEmailIcon();
+			populateInbox();
+		};
+		
+		function populateInbox()
+		{
+			for(var n in emailJSON.emails)
+			{
+				insertEmail(n);
+			}
+			
+			insertInboxFooter();
+		};
+		
+		function insertInboxFooter()
+		{
+			var inbox = document.getElementById('inbox-container');
+			
+			var divFooter = document.createElement('div');
+			divFooter.setAttribute('class','inbox-footer');
+			
+			var textTotalEmails = document.createElement('h3');
+			textTotalEmails.setAttribute('id','totalNumEmails');
+			textTotalEmails.textContent = countTotalEmails();
+			divFooter.appendChild(textTotalEmails);
+			
+			var textSlash = document.createElement('h3');
+			textSlash.textContent = '/';
+			divFooter.appendChild(textSlash);
+			
+			var textCurrentEmail = document.createElement('h3');
+			textCurrentEmail.setAttribute('id','selectedEmail');
+			textCurrentEmail.textContent = '0';
+			divFooter.appendChild(textCurrentEmail);
+			
+			inbox.appendChild(divFooter);
+		};
+		
+		function countTotalEmails()
+		{
+			return emailJSON.emails.length;
+		};
+		
+		function insertEmail(n)
+		{
+			var id 		= parseInt(n);
+			var inbox 	= document.getElementById('inbox-container');
+			
+			// Creates: <div class='inbox-item' id='inbox-item-n' onclick='select'></div>
+			var divInboxItem = document.createElement('div');
+			divInboxItem.setAttribute('class','inbox-item');
+			divInboxItem.setAttribute('id','inbox-item-'+id);
+			divInboxItem.setAttribute('onclick', 'select(this);');
+			
+			// This needs to be updated to check the unread status before choosing which portait icon to use
+			var divInboxIcon = document.createElement('div');
+			divInboxIcon.setAttribute('class','inbox-item-icon');
+			divInboxItem.appendChild(divInboxIcon);
+			
+			var divInboxItemBody = document.createElement('div');
+			divInboxItemBody.setAttribute('class','inbox-item-body');
+			divInboxItem.appendChild(divInboxItemBody);
+			
+			var divInboxItemFrom = document.createElement('div');
+			divInboxItemFrom.setAttribute('class','inbox-item-from');
+			divInboxItemFrom.textContent = emailJSON.emails[n].from;
+			divInboxItemBody.appendChild(divInboxItemFrom);
+			
+			var divInboxItemSubject = document.createElement('div');
+			divInboxItemSubject.setAttribute('class','inbox-item-subject');
+			divInboxItemSubject.textContent = emailJSON.emails[n].subject;
+			divInboxItemBody.appendChild(divInboxItemSubject);
+			
+			inbox.appendChild(divInboxItem);
+		};
+		
+		function setUnreadNumUnreadEmailIcon()
+		{
+			document.getElementById("inbox-new-mail-count").childNodes[0].innerHTML = countUnreadEmails();
+		};
+		
+		function select(t)
+		{
+			selectCurrentEmail(t);
+			
+			updateUnreadEmailIcon();
+		};
+		
+		// Update this to handle multi-digit numbers
+		function selectCurrentEmail(t)
+		{
+			// De-select the last selected email
+			document.getElementById(SELECTED_EMAIL_ID).style.background = backgroundColorUnselected;
+			
+			// Update global variables with value of current selected email
+			SELECTED_EMAIL_NUM = parseInt(t.id.charAt(t.id.length - 1));
+			SELECTED_EMAIL_ID  = 'inbox-item-'+SELECTED_EMAIL_NUM; // The number at the end of the ID string.
+			
+			// Visual changes
+			document.getElementById(SELECTED_EMAIL_ID).style.background = backgroundColorSelected;
+			t.getElementsByClassName("inbox-item-icon")[0].style.backgroundImage = "url('img/inbox-item-icon-read.png')";
+				
+			// Updates the inbox footer
+			var foo = parseInt(parseInt(SELECTED_EMAIL_NUM)+1);
+			document.getElementById("selectedEmail").innerHTML = foo;
+				
+			// Replace the email content
+			document.getElementsByClassName("email-from-content")[0].innerHTML 	= emailJSON.emails[SELECTED_EMAIL_NUM].from;
+			document.getElementsByClassName("email-to-content")[0].innerHTML 	= emailJSON.emails[SELECTED_EMAIL_NUM].to;
+			document.getElementsByClassName("email-subject-line")[0].innerHTML 	= emailJSON.emails[SELECTED_EMAIL_NUM].subject;
+			document.getElementsByClassName("email-body")[0].innerHTML 			= emailJSON.emails[SELECTED_EMAIL_NUM].body;
+
+			
+			// Mark email as read
+			emailJSON.emails[SELECTED_EMAIL_NUM].unread = false;
+			updateUnreadEmailIcon();
+		};
+		
+		function updateUnreadEmailIcon()
+		{
+			var numEmailsUnread = countUnreadEmails();
+			
+			if(numEmailsUnread <= 0)
+				document.getElementsByClassName("inbox-header")[0].innerHTML = "";
+			else
+				document.getElementById("inbox-new-mail-count").childNodes[0].innerHTML = numEmailsUnread;
+		};
+	</script>
+</head>
+<body>
+	<div id="inbox-container">
+		<div class="inbox-header">
+			<div id="inbox-new-mail-count"><h2></h2></div>
+		</div>
+		
+	</div>
+	
+	<div class="email-container">
+		<div class="email-header"></div>
+		<div class="email-from-container">
+			<div class="email-from-label">FROM</div>
+			<div class="email-from-content"></div>
+		</div>
+		<div class="email-to-container">
+			<div class="email-to-cornerpiece"></div>
+			<div class="email-to-label">TO</div>
+			<div class="email-to-content"></div>
+		</div>
+		<div class="email-icon"><img src='img/portrait.png'></img></div>
+		<div class="email-body-container">
+			<div class="email-subject-line"></div>
+			<div class="email-body"></div>
+		</div>
+	</div>
+	
+	<script> populateScreen(); </script>
+</body>
+</html>
